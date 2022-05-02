@@ -2,6 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from matplotlib.widgets import Slider, Button
 
 angle_grad = 45  # °
 efficiency = 100  # %
@@ -10,6 +11,7 @@ g = 9.8  # m/s^2
 x0, y0 = 0, 0  # starting point
 q = 3800  # J/g
 n = 10  # g/number
+M = 100  # kg
 m = 5  # kg
 
 angle = angle_grad * math.pi / 180
@@ -19,25 +21,33 @@ time_interval = (math.sin(angle) * initial_speed + math.sqrt((math.sin(angle) * 
 fig, ax = plt.subplots()
 ax.axes.set_aspect("equal")
 
-# fig = plt.figure()
-# ax = plt.axes(xlim=(-500, 5000), ylim=(-500, 1000))
-track, = ax.plot([], [], lw=2)
+bullet_track, = ax.plot([], [], lw=2)
+cannon_track, = ax.plot([], [], lw=2)
 
-x_data, y_data = [], []
+x_data, y_data = {"cannon": [], "bullet": []}, {"cannon": [], "bullet": []}
 
 
 def update_track(t):
-    x = x0 + (math.cos(angle) * initial_speed - wind_speed) * t
-    y = y0 + math.sin(angle) * initial_speed * t - g * (t ** 2) / 2
+    x_bullet = x0 + (math.cos(angle) * initial_speed - wind_speed) * t
+    y_bullet = y0 + math.sin(angle) * initial_speed * t - g * (t ** 2) / 2
 
-    if x not in x_data:
-        x_data.append(x)
-        y_data.append(y)
-        track.set_data(x_data, y_data)
-        ax.relim()
-        ax.autoscale_view(scalex=True, scaley=True)
+    x_cannon = x0 - (math.cos(angle) * initial_speed * (m / M) + wind_speed) * t
+    y_cannon = y0
 
-    return track,
+    if x_bullet not in x_data["bullet"]:
+        x_data["bullet"].append(x_bullet)
+        y_data["bullet"].append(y_bullet)
+
+        bullet_track.set_data(x_data["bullet"], y_data["bullet"])
+
+    if x_cannon not in x_data["cannon"]:
+        x_data["cannon"].append(x_cannon)
+        y_data["cannon"].append(y_cannon)
+
+        cannon_track.set_data(x_data["cannon"], y_data["cannon"])
+
+    ax.relim()
+    ax.autoscale_view(scalex=True, scaley=True)
 
 
 plt.xlabel("x, m")
