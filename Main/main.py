@@ -43,6 +43,8 @@ plt.style.use('dark_background')
 fig = plt.figure()
 fig.patch.set_facecolor("#3c3f41")
 fig.suptitle("Cannon Firing Simulation", fontsize=16, fontweight="bold")
+fig.canvas.manager.set_window_title("Cannon Firing Simulation")
+error_window_title = "Cannon Firing Setup"
 
 ws = [1 / 6, 1 / 6, 1 / 3, 1 / 3]
 hs = [3 / 28, 3 / 28, 1 / 28, 1 / 28, 1 / 28, 3 / 28, 3 / 28, 3 / 28, 3 / 28, 1 / 4]
@@ -242,7 +244,7 @@ def launch(event):
 button_launch.on_clicked(launch)
 
 axButton_prev = plt.subplot(gs[1, :2])
-button_prev = Button(ax=axButton_prev, label="Show previous track", color=bg_color, hovercolor=hc_color)
+button_prev = Button(ax=axButton_prev, label="Save previous track", color=bg_color, hovercolor=hc_color)
 
 
 def update_prev(event):
@@ -250,10 +252,10 @@ def update_prev(event):
 
     if show_prev_track:
         show_prev_track = False
-        button_prev.label.set_text("Show previous track")
+        button_prev.label.set_text("Save previous track")
     else:
         show_prev_track = True
-        button_prev.label.set_text("Hide previous track")
+        button_prev.label.set_text("Omit previous track")
 
 
 button_prev.on_clicked(update_prev)
@@ -306,7 +308,7 @@ def update_x0(label):
     global x0
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     x0 = int(label)
@@ -325,7 +327,7 @@ def update_y0(label):
     global y0
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     y0 = int(label)
@@ -344,7 +346,7 @@ def update_target_x(label):
     global target_x
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     target_x = int(label)
@@ -363,7 +365,7 @@ def update_target_height(label):
     global target_height
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     target_height = int(label)
@@ -382,7 +384,7 @@ def update_bullet_m(label):
     global m
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     m = int(label)
@@ -401,7 +403,7 @@ def update_cannon_m(label):
     global M
 
     if not (label.isdigit()):
-        mbox.showerror("Cannon Setup", "Incorrect measure format")
+        mbox.showerror(error_window_title, "Incorrect measure format")
         return
 
     M = int(label)
