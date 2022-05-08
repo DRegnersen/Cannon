@@ -5,6 +5,12 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Slider, Button, TextBox
 from tkinter import messagebox as mbox
 
+bg_color = "#4e5254"
+hc_color = "#afb1b3"
+hit_color = "#c75450"
+main_color_1 = "#8dd3c7"
+main_color_2 = "#71b1d0"
+
 show_prev_track = False
 hit_check = False
 
@@ -32,32 +38,41 @@ y_offset = 0
 
 x_prev_data, y_prev_data = [], []
 
+plt.style.use('dark_background')
+
 fig = plt.figure()
 fig.patch.set_facecolor("#3c3f41")
+fig.suptitle("Cannon Firing Simulation", fontsize=16, fontweight="bold")
 
-gs = GridSpec(ncols=4, nrows=10, figure=fig)
+ws = [1 / 6, 1 / 6, 1 / 3, 1 / 3]
+hs = [3 / 28, 3 / 28, 1 / 28, 1 / 28, 1 / 28, 3 / 28, 3 / 28, 3 / 28, 3 / 28, 1 / 4]
 
-ax = plt.subplot(gs[:9, 2:])
+gs = GridSpec(ncols=4, nrows=10, width_ratios=ws, height_ratios=hs, figure=fig)
+
+ax = plt.subplot(gs[:9, 2:], facecolor=bg_color)
 ax.set_aspect("equal")
 
 plt.xlabel("x, m")
 plt.ylabel("y, m")
 plt.grid(True)
 
-ax_impulses = plt.subplot(gs[9, :2])
-impulse_bar = ax_impulses.bar(["Cannonball", "Cannon (1)", "Cannon (2)"], [0, 0, 0])
+ax_impulses = plt.subplot(gs[9, :2], facecolor=bg_color)
+impulse_bar = ax_impulses.bar(["Cannonball", "Cannon (1)", "Cannon (2)"], [0, 0, 0], color=main_color_1)
+plt.xlabel("Impulses, kg*m/s")
 plt.grid(True)
 
-ax_forces = plt.subplot(gs[9, 2])
-force_bar = ax_forces.bar(["Friction C", "Reaction C", "Gravity CB"], [0, 0, 0])
+ax_forces = plt.subplot(gs[9, 2], facecolor=bg_color)
+force_bar = ax_forces.bar(["Friction C", "Reaction C", "Gravity CB"], [0, 0, 0], color=main_color_1)
+plt.xlabel("Forces, N")
 plt.grid(True)
 
-ax_velocities = plt.subplot(gs[9, 3])
-velocity_bar = ax_velocities.bar(["Initial CB", "X-coordinate CB", "Initial C"], [0, 0, 0])
+ax_velocities = plt.subplot(gs[9, 3], facecolor=bg_color)
+velocity_bar = ax_velocities.bar(["Initial CB", "X-coordinate CB", "Initial C"], [0, 0, 0], color=main_color_1)
+plt.xlabel("Velocities, m/s")
 plt.grid(True)
 
 axButton_launch = plt.subplot(gs[0, :2])
-button_launch = Button(ax=axButton_launch, label="Fire")
+button_launch = Button(ax=axButton_launch, label="Fire", color=bg_color, hovercolor=hc_color)
 
 
 def compute_x(t, track="bullet"):
@@ -110,7 +125,7 @@ def clear_track():
         line.remove()
 
     if show_prev_track:
-        ax.plot(x_prev_data, y_prev_data, "--", lw=2)
+        ax.plot(x_prev_data, y_prev_data, "--", color=hc_color, lw=3)
 
 
 def update_config():
@@ -133,7 +148,7 @@ def update_config():
 def plot_target():
     global target_x, target_height
 
-    ax.plot([target_x, target_x], [0, target_height], lw=2)
+    ax.plot([target_x, target_x], [0, target_height], color=main_color_1, lw=3)
 
 
 def plot_bars():
@@ -189,7 +204,7 @@ def run_animation():
             y_data["bullet"].append(y_bullet)
 
             if target_x <= x_bullet and hit_y <= target_height and hit_check:
-                ax.plot([target_x], [hit_y], "o")
+                ax.plot([target_x], [hit_y], "o", mfc=hit_color, mec=hit_color, markersize=8)
                 hit_check = False
 
             bullet_track.set_data(x_data["bullet"], y_data["bullet"])
@@ -203,8 +218,8 @@ def run_animation():
         ax.relim()
         ax.autoscale_view(scalex=True, scaley=True)
 
-    bullet_track, = ax.plot([], [], lw=2)
-    cannon_track, = ax.plot([], [], lw=2)
+    bullet_track, = ax.plot([], [], color=main_color_2, lw=3)
+    cannon_track, = ax.plot([], [], color=main_color_1, lw=3)
 
     x_data, y_data = {"cannon": [], "bullet": []}, {"cannon": [], "bullet": []}
 
@@ -227,7 +242,7 @@ def launch(event):
 button_launch.on_clicked(launch)
 
 axButton_prev = plt.subplot(gs[1, :2])
-button_prev = Button(ax=axButton_prev, label="Show previous track")
+button_prev = Button(ax=axButton_prev, label="Show previous track", color=bg_color, hovercolor=hc_color)
 
 
 def update_prev(event):
@@ -244,7 +259,8 @@ def update_prev(event):
 button_prev.on_clicked(update_prev)
 
 axSlider_angle = plt.subplot(gs[2, :2])
-slider_angle = Slider(ax=axSlider_angle, label="Angle", valmin=1, valmax=89, valinit=45, valstep=1)
+slider_angle = Slider(ax=axSlider_angle, label="Angle, °", valmin=1, valmax=89, valinit=45, valstep=1, initcolor=None,
+                      track_color=hc_color)
 
 
 def update_angle(val):
@@ -255,7 +271,9 @@ def update_angle(val):
 slider_angle.on_changed(update_angle)
 
 axSlider_gunpowder = plt.subplot(gs[3, :2])
-slider_gunpowder = Slider(ax=axSlider_gunpowder, label="Gunpowder", valmin=10, valmax=100, valstep=10)
+slider_gunpowder = Slider(ax=axSlider_gunpowder, label="Gunpowder, g", valmin=10, valmax=100, valstep=10,
+                          initcolor=None,
+                          track_color=hc_color)
 
 
 def update_gunpowder(val):
@@ -266,7 +284,8 @@ def update_gunpowder(val):
 slider_gunpowder.on_changed(update_gunpowder)
 
 axSlider_efficiency = plt.subplot(gs[4, :2])
-slider_efficiency = Slider(ax=axSlider_efficiency, label="Efficiency", valmin=1, valmax=100, valstep=1, valinit=30)
+slider_efficiency = Slider(ax=axSlider_efficiency, label="Efficiency, %", valmin=1, valmax=100, valstep=1, valinit=30,
+                           initcolor=None, track_color=hc_color)
 
 
 def update_efficiency(val):
@@ -277,9 +296,10 @@ def update_efficiency(val):
 slider_efficiency.on_changed(update_efficiency)
 
 axTextBox_x_start = plt.subplot(gs[5, 0])
-axTextBox_x_start.set_title("X coordinate of the starting point")
+axTextBox_x_start.set_title("Starting point X")
 
-textbox_x_start = TextBox(ax=axTextBox_x_start, label="X", initial="0", textalignment="center")
+textbox_x_start = TextBox(ax=axTextBox_x_start, label="X, m", initial="0", textalignment="center", color=bg_color,
+                          hovercolor=hc_color)
 
 
 def update_x0(label):
@@ -295,9 +315,10 @@ def update_x0(label):
 textbox_x_start.on_submit(update_x0)
 
 axTextBox_y_start = plt.subplot(gs[5, 1])
-axTextBox_y_start.set_title("Y coordinate of the starting point")
+axTextBox_y_start.set_title("Starting point Y")
 
-textbox_y_start = TextBox(ax=axTextBox_y_start, label="Y", initial="0", textalignment="center")
+textbox_y_start = TextBox(ax=axTextBox_y_start, label="Y, m", initial="0", textalignment="center", color=bg_color,
+                          hovercolor=hc_color)
 
 
 def update_y0(label):
@@ -313,9 +334,10 @@ def update_y0(label):
 textbox_y_start.on_submit(update_y0)
 
 axTextBox_target_x = plt.subplot(gs[6, 0])
-axTextBox_target_x.set_title("X coordinate of the target")
+axTextBox_target_x.set_title("Target X")
 
-textbox_target_x = TextBox(ax=axTextBox_target_x, label="X", initial="450", textalignment="center")
+textbox_target_x = TextBox(ax=axTextBox_target_x, label="X, m", initial="450", textalignment="center", color=bg_color,
+                           hovercolor=hc_color)
 
 
 def update_target_x(label):
@@ -331,9 +353,10 @@ def update_target_x(label):
 textbox_target_x.on_submit(update_target_x)
 
 axTextBox_target_height = plt.subplot(gs[6, 1])
-axTextBox_target_height.set_title("Height of the target")
+axTextBox_target_height.set_title("Target height")
 
-textbox_target_height = TextBox(ax=axTextBox_target_height, label="X", initial="20", textalignment="center")
+textbox_target_height = TextBox(ax=axTextBox_target_height, label="H, m", initial="20", textalignment="center",
+                                color=bg_color, hovercolor=hc_color)
 
 
 def update_target_height(label):
@@ -351,7 +374,8 @@ textbox_target_height.on_submit(update_target_height)
 axTextBox_bullet_m = plt.subplot(gs[7, :2])
 axTextBox_bullet_m.set_title("Cannonball mass:")
 
-textbox_bullet_m = TextBox(ax=axTextBox_bullet_m, label="m", initial="5", textalignment="center")
+textbox_bullet_m = TextBox(ax=axTextBox_bullet_m, label="m, kg", initial="5", textalignment="center", color=bg_color,
+                           hovercolor=hc_color)
 
 
 def update_bullet_m(label):
@@ -369,7 +393,8 @@ textbox_bullet_m.on_submit(update_bullet_m)
 axTextBox_cannon_m = plt.subplot(gs[8, :2])
 axTextBox_cannon_m.set_title("Cannon mass:")
 
-textbox_cannon_m = TextBox(ax=axTextBox_cannon_m, label="M", initial="100", textalignment="center")
+textbox_cannon_m = TextBox(ax=axTextBox_cannon_m, label="M, kg", initial="100", textalignment="center", color=bg_color,
+                           hovercolor=hc_color)
 
 
 def update_cannon_m(label):
@@ -384,4 +409,5 @@ def update_cannon_m(label):
 
 textbox_cannon_m.on_submit(update_cannon_m)
 
+plt.subplots_adjust(hspace=1)
 plt.show()
