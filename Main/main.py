@@ -5,16 +5,18 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Slider, Button, TextBox
 from tkinter import messagebox as mbox
 
+# Colors:
 bg_color = "#4e5254"
 hc_color = "#afb1b3"
 hit_color = "#c75450"
 main_color_1 = "#8dd3c7"
 main_color_2 = "#71b1d0"
 
+# Service parameters:
 show_prev_track = False
 hit_check = False
 
-# Initial ratios
+# Initial ratios:
 angle_grad = 45  # °
 efficiency = 30  # %
 gunpowder = 10  # g/number
@@ -25,11 +27,11 @@ q = 3800  # J/g
 M = 100  # kg
 m = 5  # kg
 
-# Cannon const parameters
+# Cannon const parameters:
 r_wheel = 0.3
 friction_coef = 0.45
 
-# Calculated ratios
+# Calculated ratios:
 angle = 0
 initial_speed = 0
 time_interval = 0
@@ -42,15 +44,17 @@ plt.style.use('dark_background')
 
 fig = plt.figure()
 fig.patch.set_facecolor("#3c3f41")
-fig.suptitle("Cannon Firing Simulation", fontsize=16, fontweight="bold")
-fig.canvas.manager.set_window_title("Cannon Firing Simulation")
+fig.suptitle("Cannon Firing Simulator", fontsize=16, fontweight="bold")
+fig.canvas.manager.set_window_title("Cannon Firing Simulator")
 error_window_title = "Cannon Firing Setup"
 
+# Proportions:
 ws = [1 / 6, 1 / 6, 1 / 3, 1 / 3]
 hs = [3 / 28, 3 / 28, 1 / 28, 1 / 28, 1 / 28, 3 / 28, 3 / 28, 3 / 28, 3 / 28, 1 / 4]
 
 gs = GridSpec(ncols=4, nrows=10, width_ratios=ws, height_ratios=hs, figure=fig)
 
+# Main plane:
 ax = plt.subplot(gs[:9, 2:], facecolor=bg_color)
 ax.set_aspect("equal")
 
@@ -58,6 +62,7 @@ plt.xlabel("x, m")
 plt.ylabel("y, m")
 plt.grid(True)
 
+# Bars:
 ax_impulses = plt.subplot(gs[9, :2], facecolor=bg_color)
 impulse_bar = ax_impulses.bar(["Cannonball", "Cannon (1)", "Cannon (2)"], [0, 0, 0], color=main_color_1)
 plt.xlabel("Impulses, kg*m/s")
@@ -76,6 +81,8 @@ plt.grid(True)
 axButton_launch = plt.subplot(gs[0, :2])
 button_launch = Button(ax=axButton_launch, label="Fire", color=bg_color, hovercolor=hc_color)
 
+
+# Values computing:
 
 def compute_x(t, track="bullet"):
     global x_offset, angle, initial_speed, friction_coef, r_wheel, m, M, g
@@ -130,6 +137,8 @@ def clear_track():
         ax.plot(x_prev_data, y_prev_data, "--", color=hc_color, lw=3)
 
 
+# Initial computing:
+
 def update_config():
     global angle, initial_speed, time_interval, x_offset, y_offset, target_height, target_x, hit_y
 
@@ -147,11 +156,15 @@ def update_config():
     return np.arange(0, time_interval, 0.1)
 
 
+# Target plotting:
+
 def plot_target():
     global target_x, target_height
 
     ax.plot([target_x, target_x], [0, target_height], color=main_color_1, lw=3)
 
+
+# Main measures bars plotting:
 
 def plot_bars():
     global time_interval, initial_speed, angle
@@ -178,7 +191,7 @@ def plot_bars():
     ax_forces.relim()
     ax_forces.autoscale_view(scalex=True, scaley=True)
 
-    y_velocities_data = [initial_speed, np.cos(angle) * initial_speed, -np.cos(angle) * initial_speed * (m / M)]
+    y_velocities_data = [initial_speed, np.cos(angle) * initial_speed, np.cos(angle) * initial_speed * (m / M)]
 
     idx = 0
     for rect in velocity_bar:
@@ -188,6 +201,8 @@ def plot_bars():
     ax_velocities.relim()
     ax_velocities.autoscale_view(scalex=True, scaley=True)
 
+
+# Main (cannon & cannonball) tracks animation:
 
 def run_animation():
     global x_prev_data, y_prev_data
@@ -243,6 +258,8 @@ def launch(event):
 
 button_launch.on_clicked(launch)
 
+# Secondary widgets:
+
 axButton_prev = plt.subplot(gs[1, :2])
 button_prev = Button(ax=axButton_prev, label="Save previous track", color=bg_color, hovercolor=hc_color)
 
@@ -297,6 +314,23 @@ def update_efficiency(val):
 
 slider_efficiency.on_changed(update_efficiency)
 
+
+# Error handling:
+
+def check_format(label):
+    try:
+        value = int(label)
+        if value >= 0:
+            return True
+        else:
+            mbox.showerror(error_window_title, "Incorrect measure format")
+            return False
+
+    except ValueError:
+        mbox.showerror(error_window_title, "Incorrect measure format")
+        return False
+
+
 axTextBox_x_start = plt.subplot(gs[5, 0])
 axTextBox_x_start.set_title("Starting point X")
 
@@ -307,11 +341,8 @@ textbox_x_start = TextBox(ax=axTextBox_x_start, label="X, m", initial="0", texta
 def update_x0(label):
     global x0
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    x0 = int(label)
+    if check_format(label):
+        x0 = int(label)
 
 
 textbox_x_start.on_submit(update_x0)
@@ -326,11 +357,8 @@ textbox_y_start = TextBox(ax=axTextBox_y_start, label="Y, m", initial="0", texta
 def update_y0(label):
     global y0
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    y0 = int(label)
+    if check_format(label):
+        y0 = int(label)
 
 
 textbox_y_start.on_submit(update_y0)
@@ -345,11 +373,8 @@ textbox_target_x = TextBox(ax=axTextBox_target_x, label="X, m", initial="450", t
 def update_target_x(label):
     global target_x
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    target_x = int(label)
+    if check_format(label):
+        target_x = int(label)
 
 
 textbox_target_x.on_submit(update_target_x)
@@ -364,11 +389,8 @@ textbox_target_height = TextBox(ax=axTextBox_target_height, label="H, m", initia
 def update_target_height(label):
     global target_height
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    target_height = int(label)
+    if check_format(label):
+        target_height = int(label)
 
 
 textbox_target_height.on_submit(update_target_height)
@@ -383,11 +405,8 @@ textbox_bullet_m = TextBox(ax=axTextBox_bullet_m, label="m, kg", initial="5", te
 def update_bullet_m(label):
     global m
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    m = int(label)
+    if check_format(label):
+        m = int(label)
 
 
 textbox_bullet_m.on_submit(update_bullet_m)
@@ -402,11 +421,8 @@ textbox_cannon_m = TextBox(ax=axTextBox_cannon_m, label="M, kg", initial="100", 
 def update_cannon_m(label):
     global M
 
-    if not (label.isdigit()):
-        mbox.showerror(error_window_title, "Incorrect measure format")
-        return
-
-    M = int(label)
+    if check_format(label):
+        M = int(label)
 
 
 textbox_cannon_m.on_submit(update_cannon_m)
