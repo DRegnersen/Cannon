@@ -1,2 +1,2 @@
 # Cannon
- Cannon firing simultion for the physics task
+ Cannon firing simulator for the physics task
