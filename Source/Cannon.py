@@ -64,17 +64,17 @@ plt.grid(True)
 
 # Bars:
 ax_impulses = plt.subplot(gs[9, :2], facecolor=bg_color)
-impulse_bar = ax_impulses.bar(["Cannonball", "Cannon (1)", "Cannon (2)"], [0, 0, 0], color=main_color_1)
+impulse_bar = ax_impulses.bar(["Projectile", "Cannon (1)", "Cannon (2)"], [0, 0, 0], color=main_color_1)
 plt.xlabel("Impulses, kg*m/s")
 plt.grid(True)
 
 ax_forces = plt.subplot(gs[9, 2], facecolor=bg_color)
-force_bar = ax_forces.bar(["Friction C", "Reaction C", "Gravity CB"], [0, 0, 0], color=main_color_1)
+force_bar = ax_forces.bar(["Friction C", "Reaction C", "Gravity P"], [0, 0, 0], color=main_color_1)
 plt.xlabel("Forces, N")
 plt.grid(True)
 
 ax_velocities = plt.subplot(gs[9, 3], facecolor=bg_color)
-velocity_bar = ax_velocities.bar(["Initial CB", "X-coordinate CB", "Initial C"], [0, 0, 0], color=main_color_1)
+velocity_bar = ax_velocities.bar(["Initial P", "X-coordinate P", "Initial C"], [0, 0, 0], color=main_color_1)
 plt.xlabel("Velocities, m/s")
 plt.grid(True)
 
@@ -317,10 +317,10 @@ slider_efficiency.on_changed(update_efficiency)
 
 # Error handling:
 
-def check_format(label):
+def check_format(label, positive_only=False):
     try:
         value = int(label)
-        if value >= 0:
+        if (not positive_only and value >= 0) or value > 0:
             return True
         else:
             mbox.showerror(error_window_title, "Incorrect measure format")
@@ -396,7 +396,7 @@ def update_target_height(label):
 textbox_target_height.on_submit(update_target_height)
 
 axTextBox_bullet_m = plt.subplot(gs[7, :2])
-axTextBox_bullet_m.set_title("Cannonball mass:")
+axTextBox_bullet_m.set_title("Projectile mass:")
 
 textbox_bullet_m = TextBox(ax=axTextBox_bullet_m, label="m, kg", initial="5", textalignment="center", color=bg_color,
                            hovercolor=hc_color)
@@ -405,7 +405,7 @@ textbox_bullet_m = TextBox(ax=axTextBox_bullet_m, label="m, kg", initial="5", te
 def update_bullet_m(label):
     global m
 
-    if check_format(label):
+    if check_format(label, positive_only=True):
         m = int(label)
 
 
@@ -421,7 +421,7 @@ textbox_cannon_m = TextBox(ax=axTextBox_cannon_m, label="M, kg", initial="100", 
 def update_cannon_m(label):
     global M
 
-    if check_format(label):
+    if check_format(label, positive_only=True):
         M = int(label)
 
 
